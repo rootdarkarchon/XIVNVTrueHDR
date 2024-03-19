@@ -19,7 +19,7 @@ Supports most configuration options from the truehdrtweaks.ini:
 - HDR Visualization
 - Indicator HUD
 
-Also supports oggling HDR on/off via `/hdr toggle` (switches from SDR->HDR to SDR or vice versa).
+Also supports toggling HDR on/off via `/hdr toggle` (switches from SDR->HDR to SDR or vice versa).
 
 ---
 
