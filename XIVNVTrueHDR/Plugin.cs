@@ -3,6 +3,7 @@ using Dalamud.Plugin;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using XIVNVTrueHDR.Windows;
+using System;
 
 namespace XIVNVTrueHDR;
 
@@ -33,7 +34,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(_commandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open Configuration Menu"
+            HelpMessage = "Open Configuration Menu" + Environment.NewLine + _commandName + " toggle -> toggle HDR on and off"
         });
 
         PluginInterface.UiBuilder.Draw += DrawUI;
