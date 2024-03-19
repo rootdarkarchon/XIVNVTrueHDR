@@ -6,6 +6,21 @@ Requires truehdrtweaks.ini to be present, truehdrtweaks correctly hooked, NvTrue
 
 Not providing any support or anything I just made this for myself.
 
+Supports most configuration options from the truehdrtweaks.ini:
+- Quality
+- HDR Display Mode (SDR, SDR->HDR, SDR/HDR split)
+- Peak Brightness
+- Paperwhite
+- Contrast
+- Saturation
+- Strength
+- Gamma
+- SDR Brightness
+- HDR Visualization
+- Indicator HUD
+
+Also supports oggling HDR on/off via `/hdr toggle` (switches from SDR->HDR to SDR or vice versa).
+
 ---
 
 [Download NvTrueHDR](https://www.nexusmods.com/site/mods/781?tab=description)
