@@ -1,79 +1,76 @@
-﻿using Dalamud.Game.Command;
-using Dalamud.IoC;
+using Dalamud.Game.Command;
 using Dalamud.Plugin;
-using System.IO;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using SamplePlugin.Windows;
+using XIVNVTrueHDR.Windows;
 
-namespace SamplePlugin
+namespace XIVNVTrueHDR;
+
+public sealed class Plugin : IDalamudPlugin
 {
-    public sealed class Plugin : IDalamudPlugin
+    public string Name => "XIV NvTrueHDR Configurator";
+    private const string _commandName = "/hdr";
+    private DalamudPluginInterface PluginInterface { get; init; }
+    private ICommandManager CommandManager { get; init; }
+    public WindowSystem WindowSystem = new("XIVNVTrueHDR");
+    private ConfigWindow ConfigWindow { get; init; }
+    private IniProvider IniProvider { get; init; }
+
+    public Plugin(
+        DalamudPluginInterface pluginInterface,
+        ICommandManager commandManager,
+        IDataManager dataManager)
     {
-        public string Name => "Sample Plugin";
-        private const string CommandName = "/pmycommand";
+        PluginInterface = pluginInterface;
+        CommandManager = commandManager;
+        IniProvider = new(dataManager);
 
-        private DalamudPluginInterface PluginInterface { get; init; }
-        private ICommandManager CommandManager { get; init; }
-        public Configuration Configuration { get; init; }
-        public WindowSystem WindowSystem = new("SamplePlugin");
+        IniProvider.LoadData();
 
-        private ConfigWindow ConfigWindow { get; init; }
-        private MainWindow MainWindow { get; init; }
+        ConfigWindow = new ConfigWindow(IniProvider);
 
-        public Plugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] ICommandManager commandManager)
+        WindowSystem.AddWindow(ConfigWindow);
+
+        CommandManager.AddHandler(_commandName, new CommandInfo(OnCommand)
         {
-            this.PluginInterface = pluginInterface;
-            this.CommandManager = commandManager;
+            HelpMessage = "Open Configuration Menu"
+        });
 
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
+        PluginInterface.UiBuilder.Draw += DrawUI;
+        PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+    }
 
-            // you might normally want to embed resources and load them from the manifest stream
-            var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-            var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
+    public void Dispose()
+    {
+        WindowSystem.RemoveAllWindows();
 
-            ConfigWindow = new ConfigWindow(this);
-            MainWindow = new MainWindow(this, goatImage);
-            
-            WindowSystem.AddWindow(ConfigWindow);
-            WindowSystem.AddWindow(MainWindow);
+        CommandManager.RemoveHandler(_commandName);
+    }
 
-            this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
-            {
-                HelpMessage = "A useful message to display in /xlhelp"
-            });
-
-            this.PluginInterface.UiBuilder.Draw += DrawUI;
-            this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
-        }
-
-        public void Dispose()
-        {
-            this.WindowSystem.RemoveAllWindows();
-            
-            ConfigWindow.Dispose();
-            MainWindow.Dispose();
-            
-            this.CommandManager.RemoveHandler(CommandName);
-        }
-
-        private void OnCommand(string command, string args)
-        {
-            // in response to the slash command, just display our main ui
-            MainWindow.IsOpen = true;
-        }
-
-        private void DrawUI()
-        {
-            this.WindowSystem.Draw();
-        }
-
-        public void DrawConfigUI()
-        {
+    private void OnCommand(string command, string args)
+    {
+        if (string.IsNullOrEmpty(args))
             ConfigWindow.IsOpen = true;
+        else
+        {
+            if (args == "toggle")
+            {
+                if (!IniProvider.Loaded) return;
+                var currentMode = IniProvider.HDRDisplayMode;
+                if (currentMode == 0) IniProvider.HDRDisplayMode = 1;
+                else IniProvider.HDRDisplayMode = 0;
+                if (!IniProvider.ImmediateWrite) _ = IniProvider.WriteDataAsync();
+            }
         }
+    }
+
+    private void DrawUI()
+    {
+        WindowSystem.Draw();
+    }
+
+    public void DrawConfigUI()
+    {
+        ConfigWindow.IsOpen = true;
     }
 }
