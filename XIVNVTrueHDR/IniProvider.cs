@@ -1,4 +1,4 @@
-﻿using Dalamud.Plugin.Services;
+using Dalamud.Plugin.Services;
 using IniParser;
 using IniParser.Model;
 using System;
@@ -80,27 +80,27 @@ public class IniProvider
 
     public bool SetIndicatorHUD
     {
-        get => _iniContent!["Values"]["EnableIndicatorHUD"] != "-1";
+        get => IndicatorHUD != -1;
         set
         {
             if (value)
-                IndicatorHUD = false;
+                IndicatorHUD = 0;
             else
-                IndicatorHUD = null;
+                IndicatorHUD = -1;
         }
     }
 
-    public bool? IndicatorHUD
+    public int IndicatorHUD
     {
         get
         {
-            if (!Loaded) return false;
-            return _iniContent!["Values"]["EnableIndicatorHUD"] == "1";
+            if (!Loaded) return -1;
+            return int.Parse(_iniContent!["Values"]["EnableIndicatorHUD"]);
         }
         set
         {
             if (!Loaded || IndicatorHUD == value) return;
-            _iniContent!["Values"]["EnableIndicatorHUD"] = value == null ? "-1" : (value.Value ? "1" : "0");
+            _iniContent!["Values"]["EnableIndicatorHUD"] = value.ToString();
             Dirty = true;
             if (ImmediateWrite) _ = WriteDataAsync();
         }

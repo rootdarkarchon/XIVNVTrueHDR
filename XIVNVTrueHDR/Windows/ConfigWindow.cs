@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -189,10 +189,10 @@ public class ConfigWindow : Window
             using (ImRaii.PushIndent(indent))
             using (ImRaii.Disabled(!_iniProvider.SetIndicatorHUD))
             {
-                bool val = _iniProvider.IndicatorHUD ?? false;
+                bool val = _iniProvider.IndicatorHUD == 1;
                 if (ImGui.Checkbox("Show HUD Indicator", ref val))
                 {
-                    _iniProvider.IndicatorHUD = val;
+                    _iniProvider.IndicatorHUD = val ? 1 : 0;
                 }
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Shows an indicator in the top left if NvTrueHDR is working.");
